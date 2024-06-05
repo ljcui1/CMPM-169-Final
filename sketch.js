@@ -1,3 +1,5 @@
+let drawArea;
+
 let palette;
 
 let capture;
@@ -33,6 +35,21 @@ let redo;
 let cam;
 let sel;
 
+let hueDown;
+let hueUp;
+let hu;
+
+let satDown;
+let satUp;
+let sat;
+
+let brightDown;
+let brightUp;
+let bright;
+
+let pixelShuf;
+let pixel;
+
 let size;
 let val = 5;
 
@@ -63,8 +80,16 @@ function setup() {
   
   sel = new toolButton(width/50, 14 * (height/33), 6 * (width/50), 30, "📂", imgSel);
   cam = new toolButton(width/50, 16 * (height/33), 6 * (width/50), 30, "📸", camOrImg);
-  disk = new toolButton(width/50, 18 * (height/33), 6 * (width/50), 30, "💾", savePng)
+  disk = new toolButton(width/50, 18 * (height/33), 6 * (width/50), 30, "💾", savePng);
   
+  hueDown = new toolButton(width/50, 20.5 * (height/33), 2.5 * (width/50), 30, "<", hu);
+  hueUp = new toolButton(4.5 * (width/50), 20.5 * (height/33), 2.5 * (width/50), 30, ">", hu);
+  satDown = new toolButton(width/50, 23 * (height/33), 2.5 * (width/50), 30, "<", sat);
+  satUp = new toolButton(4.5 * (width/50), 23 * (height/33), 2.5 * (width/50), 30, ">", sat);
+  brightDown = new toolButton(width/50, 25.5 * (height/33), 2.5 * (width/50), 30, "<", bright);
+  brightUp = new toolButton(4.5 * (width/50), 25.5 * (height/33), 2.5 * (width/50), 30, ">", bright);
+  
+  pixelShuf = new toolButton(width/50, 29 * (height/33), 6 * (width/50), 50, "🔀", pixel);
   
   
   size = new sizeSlider(width/50, 12 * (height/33), 6 * (width/50), 2 * (height/165), currBrush);
@@ -90,6 +115,11 @@ function draw() {
     }
   }
   
+  /*fill(200);
+  rect(0, 0, width, height/33);
+  rect(0, 27 * (height/33), width, 6 * (height/33));
+  rect(0, 0, 3 * (width/20), height);*/
+  
   brush.display();
   pencil.display();
   eraser.display();
@@ -97,6 +127,13 @@ function draw() {
   sel.display();
   cam.display();
   disk.display();
+  hueDown.display();
+  hueUp.display();
+  satDown.display();
+  satUp.display();
+  brightDown.display();
+  brightUp.display();
+  pixelShuf.display();
   
   image(palette, (2 * width/5) + width/40, (4 * height/5) + height/27.5, width/2 + width/20, height/7.5 + height/165);
   noFill();
@@ -110,6 +147,9 @@ function draw() {
   textSize(15);
   strokeWeight(0);
   text("Current Color", 71 * (width/200), 161 * (height/165));
+  text("Hue", 4 * (width/50), 20 * (height/33))
+  text("Saturation", 4 * (width/50), 22.5 * (height/33))
+  text("Brightness", 4 * (width/50), 25 * (height/33))
   
   size.display();
   
@@ -139,6 +179,13 @@ function mousePressed(){
   sel.handleClick();
   cam.handleClick();
   disk.handleClick();
+  hueDown.handleClick();
+  hueUp.handleClick();
+  satDown.handleClick();
+  satUp.handleClick();
+  brightDown.handleClick();
+  brightUp.handleClick();
+  pixelShuf.handleClick();
   
   if(mouseX >= 17 * (width/40) && mouseX < palette.width + 17 * (width/40) && mouseY >= 138 * (height/165) && mouseY < palette.height + 138 * (height/165)){
     //colorMode(RGB, 255);
@@ -182,6 +229,94 @@ function handleFile(file){
   }else{
     alert('Please select an image file.');
   }
+}
+
+function pixelShuffle(x, y, w, h){
+  let areaPixels = [];
+  
+  for(let i = x; i < x + w; i++){
+    for(let j = y; j < y + h; j++){
+      areaPixels.push(get(i, j));
+    }
+  }
+  
+  for(let i = areaPixels.length - 1; i > 0; i--){
+    let j = int(random(i + 1));
+    let temp = areaPixels[i];
+    areaPixels[i] = areaPixels[j];
+    areaPixels[j] = temp;
+  }
+  
+  let index = 0;
+  for(let i = x; i < x + w; i++){
+    for(let j = y; j < y + h; j++){
+      set(i, j, areaPixels[index]);
+      index++;
+    }
+  }
+  updatePixels();
+}
+
+function Hued(x, y, w, h, deltaHue){
+  console.log(`Hued called with x=${x}, y=${y}, w=${w}, h=${h}, deltaHue=${deltaHue}`);
+  
+  colorMode(HSB, 260, 100, 100, 255);
+  
+  
+  for (let i = x; i < x + w; i++) {
+    for (let j = y; j < y + h; j++) {
+      let c = get(i, j);
+
+      let newHue = (hue(c) + deltaHue) % 360;
+      let newColor = color(newHue, saturation(c), brightness(c), alpha(c));
+
+      set(i, j, newColor);
+    }
+  }
+
+  updatePixels();
+  colorMode(RGB, 255);
+  
+}
+
+function Saturationed(x, y, w, h, deltaSaturation){
+  colorMode(HSB, 260, 100, 100, 255);
+  
+  
+  for (let i = x; i < x + w; i++) {
+    for (let j = y; j < y + h; j++) {
+      let c = get(i, j);
+
+      let newSaturation = constrain(saturation(c) + deltaSaturation, 0, 100);
+      let newColor = color(hue(c), newSaturation, brightness(c), alpha(c));
+
+      set(i, j, newColor);
+    }
+  }
+
+  updatePixels();
+  colorMode(RGB, 255);
+  
+}
+
+function Brightnessed(x, y, w, h, deltaBrightness){
+  colorMode(HSB, 260, 100, 100, 255);
+  
+  
+  for (let i = x; i < x + w; i++) {
+    for (let j = y; j < y + h; j++) {
+      let c = get(i, j);
+
+      let newBrightness = constrain(brightness(c) + deltaBrightness, 0, 100);
+      let newColor = color(hue(c), saturation(c), newBrightness, alpha(c));
+
+      set(i, j, newColor);
+    }
+  }
+
+  updatePixels();
+  colorMode(RGB, 255);
+  
 }
 
 function colorPicker(){
@@ -304,6 +439,24 @@ class toolButton {
       }else if(this.label == "💾"){
         let fileName = "Painting_" + year() + nf(month(), 2) + nf(day(),2) + "_" + nf(hour(), 2) + nf(minute(), 2) + nf(second(), 2);
         saveToPNG(fileName);
+      }else if(this.label == "<"){
+        if(this.y == (21 * (height/33))){
+          Hued(width/10 + width/20, height/33, (8 * width/10) + width/40, (26 * height/33), -0.1);
+        }else if(this.y == (24 * (height/33))){
+          Saturationed(width/10 + width/20, height/33, (8 * width/10) + width/40, (26 * height/33), -0.1);
+        }else if(this.y == (27 * (height/33))){
+          Brightnessed(width/10 + width/20, height/33, (8 * width/10) + width/40, (26 * height/33), -0.1);
+        }
+      }else if(this.label == ">"){
+        if(this.y == (21 * (height/33))){
+          Hued(width/10 + width/20, height/33, (8 * width/10) + width/40, (26 * height/33), 0.1);
+        }else if(this.y == (24 * (height/33))){
+          Saturationed(width/10 + width/20, height/33, (8 * width/10) + width/40, (26 * height/33), 0.1);
+        }else if(this.y == (27 * (height/33))){
+          Brightnessed(width/10 + width/20, height/33, (8 * width/10) + width/40, (26 * height/33), 0.1);
+        }
+      }else if(this.label == "🔀"){
+        pixelShuffle(width/10 + width/20, height/33, (8 * width/10) + width/40, (26 * height/33));
       }
     }
   }
@@ -342,3 +495,4 @@ class sizeSlider{
   }
   
 }
+
