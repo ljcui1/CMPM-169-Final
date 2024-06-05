@@ -440,19 +440,19 @@ class toolButton {
         let fileName = "Painting_" + year() + nf(month(), 2) + nf(day(),2) + "_" + nf(hour(), 2) + nf(minute(), 2) + nf(second(), 2);
         saveToPNG(fileName);
       }else if(this.label == "<"){
-        if(this.y == (21 * (height/33))){
+        if(this.y == (20.5 * (height/33))){
           Hued(width/10 + width/20, height/33, (8 * width/10) + width/40, (26 * height/33), -0.1);
-        }else if(this.y == (24 * (height/33))){
+        }else if(this.y == (23 * (height/33))){
           Saturationed(width/10 + width/20, height/33, (8 * width/10) + width/40, (26 * height/33), -0.1);
-        }else if(this.y == (27 * (height/33))){
+        }else if(this.y == (25.5 * (height/33))){
           Brightnessed(width/10 + width/20, height/33, (8 * width/10) + width/40, (26 * height/33), -0.1);
         }
       }else if(this.label == ">"){
-        if(this.y == (21 * (height/33))){
+        if(this.y == (20.5 * (height/33))){
           Hued(width/10 + width/20, height/33, (8 * width/10) + width/40, (26 * height/33), 0.1);
-        }else if(this.y == (24 * (height/33))){
+        }else if(this.y == (23 * (height/33))){
           Saturationed(width/10 + width/20, height/33, (8 * width/10) + width/40, (26 * height/33), 0.1);
-        }else if(this.y == (27 * (height/33))){
+        }else if(this.y == (25.5 * (height/33))){
           Brightnessed(width/10 + width/20, height/33, (8 * width/10) + width/40, (26 * height/33), 0.1);
         }
       }else if(this.label == "🔀"){
